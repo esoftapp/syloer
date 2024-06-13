@@ -9,6 +9,19 @@ use Config\Services;
 
 class Logger extends LogLogger
 {
+    protected $senderToken = '';
+    protected $bugsCenter  = '';
+
+    public function __construct() {
+        parent::__construct(config(\Config\Logger::class));
+
+        $tmSenderToken = getenv('project.telegram.senderToken') ?: (defined('TM_SENDER_TOKEN') ? TM_SENDER_TOKEN : '');
+        $tmBugsCenter  = getenv('project.telegram.bugsCenter') ?: (defined('TM_BUGS_CENTER') ? TM_BUGS_CENTER : '');
+
+        $this->senderToken = $tmSenderToken;
+        $this->bugsCenter  = $tmBugsCenter;
+    }
+
     /**
      * Logs with an arbitrary level.
      *
@@ -76,9 +89,8 @@ class Logger extends LogLogger
      */
     protected function sendTelegram($level, $message)
     {
-        // make sure to add constants : TM_SENDER_TOKEN & TM_BUGS_CENTER
-        if (defined('TM_SENDER_TOKEN') && defined('TM_BUGS_CENTER') && TM_BUGS_CENTER !== '' && TM_SENDER_TOKEN !== '') {
-            $url     = 'https://api.telegram.org/bot' . TM_SENDER_TOKEN . '/sendMessage?chat_id=' . TM_BUGS_CENTER;
+        if ($this->bugsCenter !== '' && $this->senderToken !== '') {
+            $url     = 'https://api.telegram.org/bot' . $this->senderToken . '/sendMessage?chat_id=' . $this->bugsCenter;
             $content = [
                 'text'       => strtoupper($level) . ' in ' . ENVIRONMENT . " mode\nat " . getDomainName() . "\n```log\n" . $message . "\n```",
                 'parse_mode' => 'markdown',
