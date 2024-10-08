@@ -5,7 +5,6 @@ namespace Esoftdream\Syloer\Libraries;
 use CodeIgniter\Log\Exceptions\LogException;
 use CodeIgniter\Log\Handlers\HandlerInterface;
 use CodeIgniter\Log\Logger as LogLogger;
-use Config\Services;
 
 class Logger extends LogLogger
 {
@@ -75,33 +74,10 @@ class Logger extends LogLogger
             }
         }
 
-        // call sendTelegram()
-        $this->sendTelegram($level, $message);
-
+        // kirim notif ke Telegram
+        $telegram = new Telegram($this->bugsCenter, $this->senderToken);
+        $telegram->send(strtoupper($level) . ' in ' . ENVIRONMENT . " mode\nat " . getDomainName() . "\n```log\n" . $message . "\n```");
+        
         return true;
-    }
-
-    /**
-     * Fungsi Kirim log ke Telegram
-     *
-     * @param string $level
-     * @param string $message
-     */
-    protected function sendTelegram($level, $message)
-    {
-        if ($this->bugsCenter !== '' && $this->senderToken !== '') {
-            $url     = 'https://api.telegram.org/bot' . $this->senderToken . '/sendMessage?chat_id=' . $this->bugsCenter;
-            $content = [
-                'text'       => strtoupper($level) . ' in ' . ENVIRONMENT . " mode\nat " . getDomainName() . "\n```log\n" . $message . "\n```",
-                'parse_mode' => 'markdown',
-            ];
-
-            $client = Services::curlrequest();
-
-            $client->request('POST', $url, [
-                'form_params' => $content,
-                'http_errors' => false,
-            ]);
-        }
     }
 }
