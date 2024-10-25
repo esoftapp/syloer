@@ -8,10 +8,12 @@ class Telegram
 {
     private $bugsCenter;
     private $senderToken;
+    private $threadId;
 
-    public function __construct(string $bugsCenter = '', string $senderToken = '') {
+    public function __construct(string $bugsCenter = '', string $senderToken = '', string $threadId = '') {
         $this->bugsCenter  = $bugsCenter;
         $this->senderToken = $senderToken;
+        $this->threadId    = $threadId;
     }
 
     /**
@@ -22,7 +24,7 @@ class Telegram
     public function send(string $message)
     {
         if ($this->bugsCenter !== '' && $this->senderToken !== '') {
-            $url     = 'https://api.telegram.org/bot' . $this->senderToken . '/sendMessage?chat_id=' . $this->bugsCenter;
+            $url     = 'https://api.telegram.org/bot' . $this->senderToken . '/sendMessage?message_thread_id=' . $this->threadId . '&chat_id=' . $this->bugsCenter;
             $content = [
                 'text'       => $message,
                 'parse_mode' => 'markdown',
