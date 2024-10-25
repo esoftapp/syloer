@@ -10,15 +10,18 @@ class Logger extends LogLogger
 {
     protected $senderToken = '';
     protected $bugsCenter  = '';
+    protected $threadId    = '';
 
     public function __construct() {
         parent::__construct(config(\Config\Logger::class));
 
         $tmSenderToken = getenv('project.telegram.senderToken') ?: (defined('TM_SENDER_TOKEN') ? TM_SENDER_TOKEN : '');
         $tmBugsCenter  = getenv('project.telegram.bugsCenter') ?: (defined('TM_BUGS_CENTER') ? TM_BUGS_CENTER : '');
+        $tmThreadId    = getenv('project.telegram.threadId') ?: (defined('TM_THREAD_ID') ? TM_THREAD_ID : '');
 
         $this->senderToken = $tmSenderToken;
         $this->bugsCenter  = $tmBugsCenter;
+        $this->threadId    = $tmThreadId;
     }
 
     /**
@@ -75,9 +78,9 @@ class Logger extends LogLogger
         }
 
         // kirim notif ke Telegram
-        $telegram = new Telegram($this->bugsCenter, $this->senderToken);
+        $telegram = new Telegram($this->bugsCenter, $this->senderToken, $this->threadId);
         $telegram->send(strtoupper($level) . ' in ' . ENVIRONMENT . " mode\nat " . getDomainName() . "\n```log\n" . $message . "\n```");
-        
+
         return true;
     }
 }
